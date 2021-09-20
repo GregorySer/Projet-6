@@ -1,0 +1,30 @@
+
+
+Lire colonne nom fichier csv ligne 1
+
+Lire colonne prénom fichier csv ligne 1
+
+Lire colonne lieu  fichier csv ligne 1
+
+Lire colonne service fichier csv ligne 1
+
+.....
+
+Déclarer variable : identifiant_unique
+identifiant_unique = première lettre prenom + 2 premieres lettres du nom + 1
+
+Si identifiant_unique existe déjà  ajouter 1 au dernier caractère et ainsi de suite jusqu'à trouver un identifant unique
+
+générer adresse mail = prenom.nom@projet6.com
+ 
+générer un mot de passe aléatoire = 8 caractères 
+
+
+créer un fichier csv nouveau = fichier csv + colonne identifiant + colonne mail + colonne mot de passe
+
+ajouter identifiant_unique + adresse mail + mot de passe sur la ligne 1
+
+
+Revenir au début et faire la même choise avec ligne 2 jusqu'à la dernière ligne non vide de la colonne 1
+
+
