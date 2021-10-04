@@ -2,6 +2,7 @@
 import csv
 import shutil
 import numpy as np
+from pyad import *
 
 #Lit le fichier csv de base
 with open('fichier_brut.csv') as fichier_csv:
