@@ -6,7 +6,7 @@ from pyad import *
 
 
 #Lit le fichier csv de base
-with open('fichier_brut.csv') as fichier_csv:
+with open('fichier_brut.csv', encoding='utf-8') as fichier_csv:
     reader = csv.reader(fichier_csv, delimiter=',')
     for ligne in reader:
         print(ligne)
@@ -26,7 +26,7 @@ Prenom = []
 Nom = []
 
 # Lit le fichier temp1
-with open('fichier_temp1.csv') as fichier_csv:
+with open('fichier_temp1.csv', encoding='utf-8') as fichier_csv:
     #ATTENTION AU CHOIX DU DELIMITEUR!!!!
     reader = csv.reader(fichier_csv, delimiter=';')
         #row --> met le tableur sous forme de listes de listes ; Tableau =[[prenom1, nom1],[prenom2,nom2]...]
@@ -45,7 +45,7 @@ i=0
 for row in Tableau:
     row.append(ajout_colonne)
 
-
+#recherche de doublon dans les identifiants
 RechDoublon={}
 for i in range(len(Tableau)):
     
@@ -57,8 +57,21 @@ for i in range(len(Tableau)):
           Tableau[i]=[Tableau[i][0],Tableau[i][1], 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2']
           print('Attention')
         else:
-            print('OK')
+           print('OK')
         RechDoublon['u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
+
+#2eme recherche de doublons
+print('2eme recherche de doublons')
+print(Tableau)
+RechDoublon2={}
+for i in range(len(Tableau)):
+    if Tableau[i]==[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2'] and Tableau[i-1]==[Tableau[i-1][0],Tableau[i-1][1],'u'+Tableau[i-1][0][0]+Tableau[i-1][1][0:3]+'2']:
+        Tableau[i]=[Tableau[i][0],Tableau[i][1], 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'3']
+        print('Attention')
+    else:
+        print('OK')
+#        RechDoublon2['u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2']=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2']
+    
 
 
 #Ajouter des colonnes au tableau A FAIRE PLUS TARD
@@ -68,15 +81,16 @@ for i in range(len(Tableau)):
 pyad.set_defaults(ldap_server="ADPython.com", username="Administrateur", password="Secret12")
 ou=pyad.adcontainer.ADContainer.from_dn("ou=Groupes, dc=ADPython, dc=com")
 
+#pour y voir plus clair :-)
+NewTableau=Tableau
+
 
 #ajouter les utilisateurs en lisant le csv:
 new_group=pyad.adgroup.ADGroup.from_cn('employee')
 new_user=[]
-for row in Tableau:
+for row in NewTableau:
     givenName=row[0]
     name=row[1]
     sAMAccountName=row[2]
     print(givenName, name, sAMAccountName)
-    new_user.append(pyad.aduser.ADUser.create(sAMAccountName, ou, 'Azerty1234+'))
-    
-new_group.add_members(new_user)
+    new_user.append(pyad.aduser.ADUser.create(sAMAccountName, ou, 'Azerty1234+', optional_attribu
