@@ -2,6 +2,10 @@
 
 AUTOMATISATION DE CREATION DE COMPTES AD DEPUIS UNE LISTE EXCEL
 
+Fonctionnemnet du verisonning:
+- modification mineure (court terme et moyen terme): incrémenter le version de +0.1
+- modification majeure (long terme ou modfification critique): incrémenter la version à la valeur entière supérieure
+
 Pré-requis:
 - le script doit être executé en console administrateur
 - le script doit être lancé depuis un serveur ayant le rôle AD déjà installé
@@ -32,3 +36,4 @@ Pistes d'amélioration:
            - Si identifiant existe : incrémenter le dernier caractère de +1 à l'aide de l'expression régulière regex, sinon: le créer
    Long terme:
       - Ajouter un module Ansible qui crée le rôle AD lorsqu'il n'est pas installé
+      - Documenter le projet en anglais pour toucher un plus large public
