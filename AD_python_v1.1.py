@@ -1,28 +1,27 @@
-#VERSION V1.7
+#VERSION V1.8
 
 #importer les packages nécessaires
 import csv
 import shutil
 import numpy as np
+import pyad.adquery
 from pyad import *
-
 
 #Lit le fichier csv de base
 with open('fichier_brut.csv', encoding='utf-8') as fichier_csv:
     reader = csv.reader(fichier_csv, delimiter=',')
-    for ligne in reader:
-        print(ligne)
 
+try:
+    #copier fichier_brut vers fichier_temp1
+    source=r'C:\Users\mon\Fichier\brut.csv'
+    destination=r'C:\Users\mon\Fichier\fichier_temp1.csv'
 
-#copier fichier_brut vers fichier_temp1
-source=r'C:\Users\mon\Fichier\brut.csv'
-destination=r'C:\Users\mon\Fichier\fichier_temp1.csv'
+    shutil.copyfile(source, destination)
+except:
+        print('Erreur dans le chemin du fichier source ou de destination')
 
-shutil.copyfile(source, destination)
-
-
-
-#transformer fichier_temp1 en tableau (en listes de listes)
+#déclaration de variables
+q = adquery.ADQuery()
 Tableau = []
 Prenom = []
 Nom = []
@@ -36,11 +35,10 @@ with open('fichier_temp1.csv', encoding='utf-8') as fichier_csv:
             Tableau.append(row)
     fichier_csv.close
 
-#contrôler qu'on est passé en mode liste de liste
-#print(Tableau)
-
-#créations de variables: nommer une colonne et initialiser compteur
+#Déclarer nouvelle variable
 ajout_colonne='identifiant'
+
+#initialiser variable
 i=0
 
 #Ajouter colonne au tableau
@@ -48,7 +46,7 @@ for row in Tableau:
     row.append(ajout_colonne)
 
 
-#recherche de doublon dans les identifiants
+#recherche de doublon dans Tableau
 RechDoublon={}
 for i in range(len(Tableau)):
     
@@ -58,50 +56,56 @@ for i in range(len(Tableau)):
         Tableau[i]=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
         if 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1' in RechDoublon:
           Tableau[i]=[Tableau[i][0],Tableau[i][1], 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2']
-          print('Attention')
         else:
-           print('OK')
         RechDoublon['u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
 
-#2eme recherche de doublons
+#Supprimer la première ligne qui correspond aux titres des colonnes
+del Tableau[0]
+
+#2eme recherche de doublons dans Tableau
 RechDoublon2={}
 for i in range(len(Tableau)):
     if Tableau[i]==[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2'] and Tableau[i-1]==[Tableau[i-1][0],Tableau[i-1][1],'u'+Tableau[i-1][0][0]+Tableau[i-1][1][0:3]+'2']:
         Tableau[i]=[Tableau[i][0],Tableau[i][1], 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'3']
+        #tant qu'il y a un "attention" il y a des doublons dans le tableau
         print('Attention')
     else:
         print('OK')
 
 
-#Supprimer la première ligne qui correspond aux titres des colonnes
-del Tableau[0]
+try:
+    #préparer le module pyad: définir le compte admin pour faire les manip auto
+    pyad.set_defaults(ldap_server="xxxxxxxx", username="xxxxxx", password="xxxxxxxxxx")
+    ou=pyad.adcontainer.ADContainer.from_dn("ou=xxxxx, dc=xxxxx, dc=xxx")
+except:
+    print('Vérifier si le compte, le domaine, l\'OU existent et si le mot de passe est correct')
+    
 
-
-#préparer le module pyad: définir le compte admin pour faire les manip auto
-pyad.set_defaults(ldap_server="ADPython.com", username="Administrateur", password="xxxxxxxxxx")
-ou=pyad.adcontainer.ADContainer.from_dn("ou=Groupes, dc=ADPython, dc=com")
-
-#####CONTROLER DOUBLON DE L'AD :evolution a etudier
-#n=1
-#for i in range(len(Tableau)):
-#       Tableau[i]=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]]
-#       while 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+str(n) in ou:
-#           n=n+1
-#           Tableau[i]=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+str(n)]
-#       Tableau[i]=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
-
-
-#ajouter les utilisateurs en lisant le csv:
-new_group=pyad.adgroup.ADGroup.from_cn('employee')
+#ajouter les utilisateurs en lisant la liste de listes et contrôle des doublons dans l'AD avec ADQuery et boucle while
+new_group=pyad.adgroup.ADGroup.from_cn('xxxxxx')
 new_user=[]
 for row in Tableau:
     givenName=row[0]
     name=row[1]
     sAMAccountName=row[2]
-    print(givenName, name, sAMAccountName)
-    new_user.append(pyad.aduser.ADUser.create(sAMAccountName, ou, 'xxxxxxxxxxx', optional_attributes={"givenName":givenName, "displayName":name+' '+givenName, "sn":name}))
-    
+    inserted=0
+    while inserted!=1:
+ 
+        q.execute_query(
+                attributes = ["distinguishedName", "sAMAccountName"],
+                where_clause = "objectClass = 'user'",
+                base_dn = "ou=xxxx, dc=xxxxx, dc=xxx"
+        )
+        found = 0
+        for row in q.get_results():
+            if row["sAMAccountName"] == sAMAccountName:
+                    found = 1
+        if not found:
+             new_user.append(pyad.aduser.ADUser.create(sAMAccountName, ou, 'Azerty1234+', optional_attributes={"givenName":givenName, "displayName":name+' '+givenName, "sn":name}))
+             inserted=1
+        else:
+              sAMAccountName=sAMAccountName+'1'
 new_group.add_members(new_user)
 
-print('Les comptes utilisateurs ont été créés')
 
+print('Les comptes utilisateurs ont été créés')
