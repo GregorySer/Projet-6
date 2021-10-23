@@ -57,7 +57,7 @@ for i in range(len(Tableau)):
         if 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1' in RechDoublon:
           Tableau[i]=[Tableau[i][0],Tableau[i][1], 'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'2']
         else:
-        RechDoublon['u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
+          RechDoublon['u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']=[Tableau[i][0],Tableau[i][1],'u'+Tableau[i][0][0]+Tableau[i][1][0:3]+'1']
 
 #Supprimer la première ligne qui correspond aux titres des colonnes
 del Tableau[0]
